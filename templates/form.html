@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Form - Mark's Python Web App</title>
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Form Group Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Button Styling */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #submitBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #submitBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #submitBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #resetBtn {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        #resetBtn:hover {
+            background: #e0e0e0;
+        }
+
+        /* Message Styling */
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .message.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+
+        /* Token Display */
+        .token-display {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .token-display.show {
+            display: block;
+        }
+
+        .token-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .token-value {
+            background: white;
+            padding: 12px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #667eea;
+            word-break: break-all;
+            border: 1px solid #ddd;
+        }
+
+        /* Loading Indicator */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Submission Form</h1>
+        <p class="subtitle">Powered by GitHub Copilot</p>
+
+        <!-- Status Messages -->
+        <div id="message" class="message"></div>
+
+        <!-- Main Form -->
+        <form id="submissionForm">
+            <!-- Name Field -->
+            <div class="form-group">
+                <label for="name">Full Name <span style="color: red;">*</span></label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="Enter your full name"
+                    required
+                >
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="Enter your email address"
+                >
+            </div>
+
+            <!-- Reason Select -->
+            <div class="form-group">
+                <label for="reason">Reason for Submission <span style="color: red;">*</span></label>
+                <select id="reason" name="reason" required>
+                    <option value="">-- Select a reason --</option>
+                    <option value="bug_report">Bug Report</option>
+                    <option value="feature_request">Feature Request</option>
+                    <option value="improvement">Improvement Suggestion</option>
+                    <option value="documentation">Documentation Issue</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Comments Field -->
+            <div class="form-group">
+                <label for="comments">Additional Comments</label>
+                <textarea 
+                    id="comments" 
+                    name="comments" 
+                    placeholder="Share any additional details or comments..."
+                ></textarea>
+            </div>
+
+            <!-- Button Group -->
+            <div class="button-group">
+                <button type="submit" id="submitBtn">Submit</button>
+                <button type="reset" id="resetBtn">Clear</button>
+            </div>
+        </form>
+
+        <!-- Token Display -->
+        <div id="tokenDisplay" class="token-display">
+            <div class="token-label">Your Submission Token:</div>
+            <div class="token-value" id="tokenValue"></div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Handle form submission
+         * Sends form data to /api/submit endpoint and displays token
+         */
+        document.getElementById('submissionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                reason: document.getElementById('reason').value,
+                comments: document.getElementById('comments').value
+            };
+
+            // Validate required fields
+            if (!formData.name || !formData.reason) {
+                showMessage('Please fill in all required fields.', 'error');
+                return;
+            }
+
+            // Disable submit button and show loading
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+            try {
+                // Send POST request to API endpoint
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Show success message
+                    showMessage('✓ Form submitted successfully!', 'success');
+
+                    // Display token
+                    showToken(result.token);
+
+                    // Reset form
+                    document.getElementById('submissionForm').reset();
+
+                    // Log submission details (for demonstration)
+                    console.log('Submission successful:', result.data);
+                } else {
+                    // Show error message
+                    showMessage(result.message || 'An error occurred during submission.', 'error');
+                }
+            } catch (error) {
+                // Handle network or parsing errors
+                console.error('Error:', error);
+                showMessage('Network error. Please try again later.', 'error');
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        /**
+         * Display message to user
+         * @param {string} text - Message text
+         * @param {string} type - Message type: 'success', 'error', 'info'
+         */
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+
+            // Auto-hide message after 5 seconds
+            setTimeout(() => {
+                messageDiv.className = 'message';
+            }, 5000);
+        }
+
+        /**
+         * Display generated token to user
+         * @param {string} token - The generated token
+         */
+        function showToken(token) {
+            const tokenDisplay = document.getElementById('tokenDisplay');
+            const tokenValue = document.getElementById('tokenValue');
+            tokenValue.textContent = token;
+            tokenDisplay.classList.add('show');
+        }
+
+        /**
+         * Log page load event (for demonstration)
+         */
+        console.log('Form page loaded successfully. Ready for submission!');
+    </script>
+</body>
+</html>
